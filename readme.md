@@ -1,180 +1,182 @@
-# First Project
-## Banking API
-Task and difficulty faced in between to create this project:
+# Banking API Gateway Simulator
 
-- Pom.xml configuration for springdoc AI something getting version issue solved by cursor.
-- Need to create UserDetails class for doing implementation in further classes.
+A production-style Banking REST API built with Java Spring Boot — simulating core banking operations including account management, fund transfers, and transaction history. Secured with JWT authentication, documented with Swagger UI, containerized with Docker, and deployed on AWS EC2.
 
-- Model -- done
-- dto -- done
-- repository -- done
-- service -- done
-- Controller -- error
-	AccountController:
-		1. `public ResponseEntity<Account> getAccount(@PathVariable String accountNumber) {}`
-		Error: Missing return statement.
-		2. `public ResponseEntity<Account> createAccount(@RequestBody AccountRequest req) {}`
-		Error: Missing return statement.
-		3. `public ResponseEntity<List<Account>> listAccounts() {}`
-		Error: Missing return statement.
+> Built as Portfolio Project 1 by a DevOps + API Integration Engineer with hands-on FinTech experience (Oracle FlexCube UBS).
 
-	AuthController:
-		1. `public ResponseEntity<AuthResponse> login(@RequestBody LoginRequest req) {
-        // authenticate, generate token, return it
-        }`
-		Error: Missing return statement.
-		2. `public ResponseEntity<String> register(@RequestBody RegisterRequest req) {
-        // save user with encoded password
-        }`
-		Error: Cannot resolve symbol 'RegisterRequest'
-		3. 
-		```java
-		public ResponseEntity<String> register(@RequestBody RegisterRequest req) {
-        // save user with encoded password
-        }
-        ```
-		Error: Missing return statement.
+---
 
-	TranscationController:
-		```java
-		@PostMapping("/transfer")
-    @Operation(summary = "Transfer funds between accounts")
-    public ResponseEntity<TransactionResponse> transfer(
-            @Valid @RequestBody TransferRequest req) {}
+## Live Demo
 
-    @GetMapping("/history/{accountNumber}")
-    @Operation(summary = "Get transaction history")
-    public ResponseEntity<List<Transaction>> history(
-            @PathVariable String accountNumber) {}
+| Resource | Link |
+|---|---|
+| Swagger UI (live) | `http://YOUR_EC2_IP:8080/swagger-ui.html` |
+| GitHub Repo | `https://github.com/sunny0625/banking-api` |
+
+> **To test the API:** Open Swagger UI → Register → Login → Copy token → Click Authorize → Test all endpoints
+
+---
+
+## Tech Stack
+
+| Layer | Technology |
+|---|---|
+| Language | Java 17 |
+| Framework | Spring Boot 3.5.x |
+| Security | Spring Security + JWT (JJWT 0.11.5) |
+| Database | H2 In-Memory (JPA / Hibernate) |
+| API Docs | Swagger UI (springdoc-openapi 2.5.0) |
+| Build | Maven |
+| Container | Docker |
+| Cloud | AWS EC2 (Ubuntu 22.04, t2.micro) |
+| IDE | IntelliJ IDEA |
+
+---
+
+## API Endpoints
+
+### Authentication (no token required)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/auth/register` | Register a new user |
+| POST | `/api/auth/login` | Login and receive JWT token |
+
+### Accounts (JWT required)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/accounts` | Create a new bank account |
+| GET | `/api/accounts` | List all accounts |
+| GET | `/api/accounts/{accountNumber}` | Get account details + balance |
+| GET | `/api/accounts/{accountNumber}/balance` | Get balance only |
+| POST | `/api/accounts/{accountNumber}/deposit` | Deposit funds |
+
+### Transactions (JWT required)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| POST | `/api/transactions/transfer` | Transfer funds between accounts |
+| GET | `/api/transactions/history/{accountNumber}` | Full transaction history |
+| GET | `/api/transactions/history/{accountNumber}/success` | Successful transactions only |
+| GET | `/api/transactions` | All transactions (admin) |
+
+---
+
+## Project Structure
+
 ```
-    Error:
-    1. Cannot resolve symbol 'TransactionResponse'
-    2. Missing return statement
-    3. Missing return statement
+src/main/java/com/banking/bankingapi/
+├── controller/          # REST endpoints (Auth, Account, Transaction)
+├── service/             # Business logic layer
+├── repository/          # Spring Data JPA interfaces
+├── model/               # JPA entities (Account, Transaction, User)
+├── dto/                 # Request and Response objects
+└── security/            # JWT filter, SecurityConfig, SwaggerConfig
+```
 
-- security -- error
-	- JwtUtil
-		@Value("${jwt.secret}") private String secret;
-    	@Value("${jwt.expiration}") private long 	zexpiration;
-    	Error: Cannot find @interface method 'value()'
-	- SecurityConfig
-		'csrf()' is deprecated since version 6.1 and marked for removal 
+---
 
-## Project is testing stage
+## How to Run Locally
 
-1. User create with credentials:
-	URL: http://localhost:8080/swagger-ui/index.html#/Authentication/register
-	- username: 'admin'
-	- password: 'admin123'
-	- role: 'ROLE_USER'
+### Prerequisites
+- Java 17+
+- Maven 3.8+
+- Docker (optional)
 
-2. Login existing user:
-	- username: 'admin'
-	- password: 'admin123'
+### Option 1 — Run with Maven
 
-	```json
-	{
-  "token": "eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiJhZG1pbiIsImlhdCI6MTc3NDE2MjUyMywiZXhwIjoxNzc0MjQ4OTIzfQ.MjUyWlLgN7b_JvPh2Wo52wnsKgzxWu2ztppStJAZqFU",
-  "message": "Login successful",
-  "username": "admin"
-}
-	```
+```bash
+# Clone the repo
+git clone https://github.com/sunny0625/banking-api.git
+cd banking-api
 
-3. Create new bank account:
-	Request:
-		```json
-		{
-  "ownerName": "Rahul Sharma",
-  "accountType": "SAVINGS"
-}
-		```
-	```json
-	{
-  "id": 1,
-  "accountNumber": "ACC-96EEF74D",
-  "ownerName": "Rahul Sharma",
-  "balance": 0,
-  "accountType": "SAVINGS",
-  "createdAt": "2026-03-22T12:27:40.464231"
-}
-	```
+# Set your JWT secret in application.properties
+# jwt.secret=YOUR_BASE64_256BIT_SECRET_HERE
+# Generate one: echo -n "your-32-char-string" | base64
 
-4. Created 2nd bank account number:
-	Request:
-	```json
-	Body:
-{
-  "ownerName": "Priya Patel",
-  "accountType": "CURRENT"
-}
-	```
+# Run
+./mvnw spring-boot:run
+```
 
-	Response:
-	```json
-	{
-  "id": 2,
-  "accountNumber": "ACC-1899337E",
-  "ownerName": "Priya Patel",
-  "balance": 0,
-  "accountType": "CURRENT",
-  "createdAt": "2026-03-22T12:31:58.654685"
-}
-	```
+Open: `http://localhost:8080/swagger-ui.html`
 
-5. Deposit to Account A:
-	Request:
-	```json
-	accountNumber: "ACC-96EEF74D"
-	amount: "10000"
-	```
+### Option 2 — Run with Docker
 
-	Response:
-	```json
-	{
-  "id": 1,
-  "accountNumber": "ACC-96EEF74D",
-  "ownerName": "Rahul Sharma",
-  "balance": 10000,
-  "accountType": "SAVINGS",
-  "createdAt": "2026-03-22T12:27:40.464231"
-}
-	```
+```bash
+# Pull from Docker Hub
+docker pull sunny0625/banking-api:v1
 
-6. Get account details:
-	Request:
-		accountNumber: "ACC-96EEF74D"
-	Response:
-	```json
-	{
-  "id": 1,
-  "accountNumber": "ACC-96EEF74D",
-  "ownerName": "Rahul Sharma",
-  "balance": 10000,
-  "accountType": "SAVINGS",
-  "createdAt": "2026-03-22T12:27:40.464231"
-}
-	```
+# Run with your JWT secret as environment variable
+docker run -d -p 8080:8080 \
+  -e JWT_SECRET=YOUR_BASE64_SECRET_HERE \
+  --name banking-api \
+  sunny0625/banking-api:v1
+```
 
-7. Transfer from Account A to Account B:
-	Request:
-	```json
-	{
-  "fromAccount": "ACC-96EEF74D",
-  "toAccount": "ACC-1899337E",
-  "amount": 3000
-}
-	```
+---
 
-	Response:
-	```json
-	{
-  "id": 1,
-  "fromAccount": "ACC-96EEF74D",
-  "toAccount": "ACC-1899337E",
-  "amount": 3000,
-  "type": "TRANSFER",
-  "status": "SUCCESS",
-  "description": "Transfer from ACC-96EEF74D to ACC-1899337E",
-  "timestamp": "2026-03-22T12:59:18.987703"
-}
-	```
+## Quick Test Walkthrough
+
+1. Open Swagger UI at `http://localhost:8080/swagger-ui.html`
+2. **Register** — `POST /api/auth/register` with username + password
+3. **Login** — `POST /api/auth/login` → copy the token from response
+4. **Authorize** — click the green Authorize button → paste `Bearer <token>`
+5. **Create accounts** — `POST /api/accounts` for two accounts
+6. **Deposit** — `POST /api/accounts/{number}/deposit?amount=10000`
+7. **Transfer** — `POST /api/transactions/transfer` between accounts
+8. **Verify** — `GET /api/accounts/{number}` confirms balances updated correctly
+
+---
+
+## Key Design Decisions
+
+**JWT Stateless Auth** — No server-side sessions. Every request carries a self-contained signed token. The `JwtAuthFilter` validates the token on every request before it reaches any controller.
+
+**@Transactional on transfers** — Fund transfers debit one account and credit another in a single atomic database transaction. If either operation fails, both roll back — money can never disappear mid-transfer.
+
+**Layered architecture** — Controllers only handle HTTP. Business logic lives in Services. Database access lives in Repositories. Clean separation means any layer can be swapped independently.
+
+**H2 in-memory database** — Chosen deliberately for the portfolio version. The JPA layer is database-agnostic — swapping to PostgreSQL or Oracle (from my FlexCube experience) requires only a single dependency and one config line change.
+
+---
+
+## What I Learned Building This
+
+- Implementing stateless JWT authentication from scratch in Spring Security 6.x (the new lambda-style config, not the deprecated `WebSecurityConfigurerAdapter`)
+- Why `@Transactional` is non-negotiable in financial systems — atomicity prevents data corruption
+- Docker multi-stage builds to keep image size under 200MB
+- Deploying a containerized Java app to AWS EC2 from scratch
+
+---
+
+## Background
+
+This project was built to demonstrate production-style API development skills gained from:
+- 14+ months working on **Oracle FlexCube Universal Banking System** at a FinTech company
+- Current role as **DevOps + API Integration Engineer at Wipro**
+
+The banking domain knowledge (account types, transaction flows, audit trails) comes from real-world exposure to core banking systems used by major Indian banks.
+
+---
+
+## Roadmap
+
+- [ ] Switch to PostgreSQL for persistent storage
+- [ ] Add rate limiting per account
+- [ ] Add Spring Boot Actuator + Prometheus metrics
+- [ ] Add Grafana dashboard for transaction monitoring
+- [ ] Write unit tests with JUnit 5 + Mockito
+- [ ] CI/CD pipeline with GitHub Actions
+
+---
+
+## Connect
+
+**LinkedIn:** [your-linkedin-url]  
+**Email:** [your-email]  
+**Portfolio:** [your-portfolio-url]
+
+---
+
+*Part of a series of portfolio projects built while transitioning into freelance and startup engineering.*
