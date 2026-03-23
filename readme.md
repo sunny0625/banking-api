@@ -173,9 +173,9 @@ The banking domain knowledge (account types, transaction flows, audit trails) co
 
 ## Connect
 
-**LinkedIn:** [your-linkedin-url]  
-**Email:** [your-email]  
-**Portfolio:** [your-portfolio-url]
+**LinkedIn:** [<https://www.linkedin.com/in/sukhbir--virdi/>]  
+**Email:** [sukhbir2506@outlook.com]  
+**Portfolio:** [Coming Soon]
 
 ---
 
