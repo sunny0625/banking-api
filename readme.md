@@ -175,7 +175,7 @@ The banking domain knowledge (account types, transaction flows, audit trails) co
 
 **LinkedIn:** [<https://www.linkedin.com/in/sukhbir--virdi/>]  
 **Email:** [sukhbir2506@outlook.com]  
-**Portfolio:** [Coming Soon]
+**Portfolio:** [https://sukhbir-singh-portfolio-ssv.vercel.app]
 
 ---
 
